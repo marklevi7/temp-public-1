@@ -88,12 +88,18 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .links{width:100%;margin-top:32px;display:flex;flex-direction:column;gap:12px}
 .links a{
   display:flex;align-items:center;gap:14px;
-  background:var(--card);color:var(--fg);text-decoration:none;
-  padding:17px 18px;border-radius:14px;border:1px solid var(--line);
+  color:var(--fg);text-decoration:none;
+  padding:17px 18px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+  -webkit-backdrop-filter:blur(14px) saturate(120%);backdrop-filter:blur(14px) saturate(120%);
+  box-shadow:0 8px 26px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 22px rgba(120,160,255,.06);
   font-size:16px;font-weight:600;letter-spacing:.2px;
-  transition:transform .14s ease,border-color .14s ease,background .14s ease;
+  transition:transform .14s ease,border-color .14s ease,background .14s ease,box-shadow .14s ease;
 }
-.links a:hover{transform:translateY(-2px);border-color:var(--accent);background:rgba(255,255,255,.07)}
+.links a:hover{transform:translateY(-2px);border-color:var(--accent);
+  background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.08));
+  box-shadow:0 12px 32px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 26px rgba(120,160,255,.1)}
 .links a:active{transform:translateY(0)}
 .ico{width:24px;height:24px;flex:0 0 24px;display:flex;align-items:center;justify-content:center;color:var(--fg)}
 .ico svg{width:22px;height:22px;display:block}
@@ -121,7 +127,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v19</div>
+    <div class="ver">v20</div>
   </footer>
 </main>
 </body>
