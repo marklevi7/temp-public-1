@@ -90,17 +90,25 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .links a{
   display:flex;align-items:center;gap:14px;
   color:var(--fg);text-decoration:none;
-  padding:18px 18px;border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
-  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
-  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
-  box-shadow:0 6px 18px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.09);
+  padding:18px 18px;border-radius:18px;
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0) 42%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.028));
+  -webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.4),0 1px 1px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.4),inset 0 -1px 0 rgba(0,0,0,.28),
+    inset 0 0 24px rgba(255,255,255,.03);
   font-size:16px;font-weight:600;letter-spacing:.2px;
-  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease,box-shadow .18s ease,background .18s ease;
 }
-.links a:hover{transform:translateY(-2px);border-color:rgba(63,185,143,.55);
-  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.05));
-  box-shadow:0 10px 26px rgba(0,0,0,.42),0 0 0 1px rgba(63,185,143,.25),inset 0 1px 0 rgba(255,255,255,.12)}
+.links a:hover{transform:translateY(-2px);border-color:rgba(63,185,143,.5);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 42%),
+    linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.05));
+  box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 0 1px rgba(63,185,143,.28),
+    inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(0,0,0,.3),
+    inset 0 0 30px rgba(120,200,175,.06)}
 .links a:active{transform:translateY(0)}
 .ico{width:24px;height:24px;flex:0 0 24px;display:flex;align-items:center;justify-content:center;color:var(--fg)}
 .ico svg{width:22px;height:22px;display:block}
@@ -112,13 +120,15 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   color:var(--fg);
-  border:1px solid rgba(255,255,255,.12);
-  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
-  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
-  box-shadow:0 6px 18px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.09);
-  transition:transform .16s ease,border-color .16s ease,background .16s ease;
-}
-.qr-btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+  border:1px solid rgba(255,255,255,.10);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.028));
+  -webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:0 10px 26px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.28);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease}
+.qr-btn:hover{transform:translateY(-1px);border-color:rgba(63,185,143,.5)}
 .qr-btn svg{width:22px;height:22px;display:block}
 .qr-modal{
   position:fixed;inset:0;z-index:19;display:none;
@@ -163,7 +173,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v26</div>
+    <div class="ver">v27</div>
   </footer>
 </main>
 </body>
