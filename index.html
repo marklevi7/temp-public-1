@@ -123,7 +123,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v37</div>
+    <div class="ver">v38</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -138,6 +138,11 @@ vec3 bg(vec2 u, float drift){
   vec3 s = texture2D(iTex, vec2(u.x, fract(u.y - drift))).rgb;
   return g + s;
 }
+// signed distance to a rounded rectangle (negative inside)
+float sdRoundRect(vec2 rel, vec2 hs, float r){
+  vec2 q = abs(rel) - hs + vec2(r);
+  return min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0))) - r;
+}
 void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
@@ -148,19 +153,23 @@ void main(){
     vec2 c = uBox[i].xy;
     vec2 hs = uBox[i].zw;
     vec2 p = (fc - c) / hs;
-    float d = pow(abs(p.x),6.0) + pow(abs(p.y),6.0);
-    if(d < 1.0){
-      float k = 0.62;
+    float radius = min(26.0, min(hs.x, hs.y) * 0.9);
+    float sd = sdRoundRect(fc - c, hs, radius);
+    float edgeSpan = min(hs.x, hs.y);
+    // d: 0 at center, 1 at the rounded-rect boundary (drives the glass shading)
+    float d = clamp(1.0 + sd / edgeSpan, 0.0, 1.4);
+    if(sd < 2.0){
+      // strong edge refraction: bend the background hard near the borders
+      float k = 0.85;
       float warp = pow(d, 3.0) * k;
-      // chromatic refraction: sample each channel at a slightly different lens scale
       vec2 basev = fc - c;
-      vec2 luvR = (basev * (1.0 - warp*1.06) + c) / iRes;
+      vec2 luvR = (basev * (1.0 - warp*1.05) + c) / iRes;
       vec2 luvG = (basev * (1.0 - warp) + c) / iRes;
-      vec2 luvB = (basev * (1.0 - warp*0.94) + c) / iRes;
+      vec2 luvB = (basev * (1.0 - warp*0.95) + c) / iRes;
       vec3 acc = vec3(0.0); float tot = 0.0;
-      for(float x=-4.0;x<=4.0;x++){
-        for(float y=-4.0;y<=4.0;y++){
-          vec2 o = vec2(x,y) * 1.1 / iRes;
+      for(float x=-2.0;x<=2.0;x++){
+        for(float y=-2.0;y<=2.0;y++){
+          vec2 o = vec2(x,y) * 1.0 / iRes;
           acc.r += bg(luvR + o, drift).r;
           acc.g += bg(luvG + o, drift).g;
           acc.b += bg(luvB + o, drift).b;
@@ -168,12 +177,15 @@ void main(){
         }
       }
       acc /= tot;
-      vec3 glass = acc * 1.18;
-      glass = mix(glass, vec3(0.72,0.78,0.92), 0.20);
-      float rim = smoothstep(0.80,1.0,d);
-      glass += rim * 0.62;
-      glass += smoothstep(0.05,1.0,p.y) * 0.10;
-      float m = smoothstep(1.0,0.9,d);
+      // clear glass: keep the refracted content, add gloss + crisp bright rim
+      vec3 glass = acc * 1.06;
+      float hl = clamp(1.0 - length(p - vec2(-0.32,0.5)) * 1.05, 0.0, 1.0);
+      glass += pow(hl, 1.6) * 0.42;                              // soft reflection highlight
+      float rim = smoothstep(0.9,1.0,d) - smoothstep(1.0,1.03,d);
+      glass += rim * 0.9;                                        // crisp bright edge
+      float inner = smoothstep(0.9,0.55,d);
+      glass += inner * 0.03;                                     // faint interior lift
+      float m = 1.0 - smoothstep(-1.0, 1.0, sd);                 // crisp anti-aliased rounded-rect edge
       col = mix(col, min(glass, vec3(1.0)), m);
     }
   }
