@@ -147,7 +147,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v46</div>
+    <div class="ver">v47</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -171,31 +171,6 @@ vec3 bg(vec2 u, float drift){
   s += texture2D(iTex, vec2(u.x*1.5+0.13, fract(u.y*1.5 - drift*(1.2+1.8*pr)))).rgb * (0.85+0.55*pr);
   return g + s;
 }
-// one lit planet with soft atmosphere glow (and optional ring)
-vec3 planet(vec2 u, vec2 ctr, float rad, vec3 col, vec2 light, float ring){
-  float asp = iRes.x / iRes.y;
-  vec2 dd = u - ctr; dd.x *= asp;
-  float r = length(dd);
-  float disc = smoothstep(rad, rad-0.006, r);
-  float lit = clamp(0.34 + 0.8*dot(normalize(dd+1e-4), light), 0.0, 1.0);
-  float glow = smoothstep(rad*2.6, rad, r) * 0.22;
-  vec3 out0 = col*lit*disc + col*glow;
-  if(ring > 0.5){
-    vec2 rd = dd; rd.y *= 3.2;
-    float rr = length(rd);
-    float rm = smoothstep(0.018,0.0,abs(rr - rad*1.75)) * (1.0 - disc);
-    out0 += col*rm*0.55;
-  }
-  return out0;
-}
-// big objects drifting through the cosmos (parallax speeds)
-vec3 planets(vec2 u, float drift){
-  vec3 c = vec3(0.0);
-  c += planet(u, vec2(0.20, fract(0.15 - drift*0.05)), 0.150, vec3(0.86,0.56,0.34), vec2(-0.55,0.5), 0.0);
-  c += planet(u, vec2(0.80, fract(0.55 - drift*0.10)), 0.100, vec3(0.42,0.76,0.86), vec2(0.55,0.45), 1.0);
-  c += planet(u, vec2(0.50, fract(0.85 - drift*0.16)), 0.055, vec3(0.62,0.46,0.86), vec2(-0.4,0.6), 0.0);
-  return c;
-}
 // signed distance to a rounded rectangle (negative inside)
 float sdRoundRect(vec2 rel, vec2 hs, float r){
   vec2 q = abs(rel) - hs + vec2(r);
@@ -205,7 +180,7 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
   float drift = iTime * uSpeed;
-  vec3 col = bg(uv, drift) + planets(uv, drift);
+  vec3 col = bg(uv, drift);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
     vec2 c = uBox[i].xy;
@@ -232,7 +207,6 @@ void main(){
         }
       }
       acc /= tot;
-      acc += planets(luvG, drift);
       vec3 glass = acc * uBright;
       glass = mix(glass, uTint, uMilk);
       float hl = clamp(1.0 - length(p - vec2(uHLx, uHLy)) * uHLsize, 0.0, 1.0);
@@ -258,6 +232,16 @@ void main(){
   for(var i=0;i<540;i++){
     var sx=Math.random()*1024, sy=Math.random()*1024, r=Math.random()*1.5+0.2, a=Math.random()*0.7+0.3;
     cx.beginPath(); cx.arc(sx,sy,r,0,6.2832); cx.fillStyle='rgba(255,255,255,'+a+')'; cx.fill();
+  }
+  // occasional bigger glowing stars (drift with the field, same direction/speed)
+  for(var j=0;j<22;j++){
+    var bx=Math.random()*1024, by=Math.random()*1024, br=Math.random()*3.5+3;
+    var gg=cx.createRadialGradient(bx,by,0,bx,by,br*3.2);
+    gg.addColorStop(0,'rgba(255,255,255,0.95)');
+    gg.addColorStop(0.35,'rgba(255,255,255,0.4)');
+    gg.addColorStop(1,'rgba(255,255,255,0)');
+    cx.fillStyle=gg; cx.beginPath(); cx.arc(bx,by,br*3.2,0,6.2832); cx.fill();
+    cx.beginPath(); cx.arc(bx,by,br*0.6,0,6.2832); cx.fillStyle='rgba(255,255,255,1)'; cx.fill();
   }
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
   var FS = document.getElementById('glassFrag').textContent;
