@@ -147,7 +147,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v48</div>
+    <div class="ver">v49</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -233,21 +233,6 @@ void main(){
     var sx=Math.random()*1024, sy=Math.random()*1024, r=Math.random()*1.5+0.2, a=Math.random()*0.7+0.3;
     cx.beginPath(); cx.arc(sx,sy,r,0,6.2832); cx.fillStyle='rgba(255,255,255,'+a+')'; cx.fill();
   }
-  // occasional brighter sparkle-stars: crisp core + thin diffraction spikes
-  cx.save(); cx.globalCompositeOperation='lighter';
-  for(var j=0;j<16;j++){
-    var bx=Math.random()*1024, by=Math.random()*1024, L=Math.random()*7+7, core=Math.random()*0.9+1.3;
-    var gh=cx.createLinearGradient(bx-L,by,bx+L,by);
-    gh.addColorStop(0,'rgba(255,255,255,0)'); gh.addColorStop(0.5,'rgba(255,255,255,0.85)'); gh.addColorStop(1,'rgba(255,255,255,0)');
-    cx.fillStyle=gh; cx.fillRect(bx-L,by-0.6,2*L,1.2);
-    var gv=cx.createLinearGradient(bx,by-L,bx,by+L);
-    gv.addColorStop(0,'rgba(255,255,255,0)'); gv.addColorStop(0.5,'rgba(255,255,255,0.85)'); gv.addColorStop(1,'rgba(255,255,255,0)');
-    cx.fillStyle=gv; cx.fillRect(bx-0.6,by-L,1.2,2*L);
-    var gc=cx.createRadialGradient(bx,by,0,bx,by,core*2.4);
-    gc.addColorStop(0,'rgba(255,255,255,1)'); gc.addColorStop(0.5,'rgba(255,255,255,0.5)'); gc.addColorStop(1,'rgba(255,255,255,0)');
-    cx.fillStyle=gc; cx.beginPath(); cx.arc(bx,by,core*2.4,0,6.2832); cx.fill();
-  }
-  cx.restore();
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
   var FS = document.getElementById('glassFrag').textContent;
   function mk(t,s){ var o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o);
