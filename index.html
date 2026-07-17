@@ -96,29 +96,39 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .qr-card span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5b6472;font-weight:600}
 footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 .ver{opacity:.45;margin-top:4px}
-/* glass controls panel (accordion, top) */
-#panel{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;z-index:60;
-  font:15px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6ebf2}
-#panel .hd{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:16px 20px;background:linear-gradient(180deg,rgba(63,185,143,.32),rgba(10,12,18,.9));
+/* glass controls: round toggle button (top-left, matches the QR button) + floating body */
+#panel{font:14px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6ebf2}
+#panel .hd{position:fixed;top:16px;left:16px;z-index:20;
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--fg);overflow:hidden;isolation:isolate;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
+  -webkit-backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
+  backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
+  box-shadow:0 10px 24px rgba(0,0,0,.42),
+    inset 0 1px 1px rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.05);
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease}
+#panel .hd::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,0) 45%);mix-blend-mode:screen}
+#panel .hd svg{width:22px;height:22px;display:block;position:relative;z-index:1}
+#panel .hd:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.24)}
+#panel .bd{position:fixed;top:72px;left:16px;z-index:19;width:min(90vw,340px);
+  max-height:0;overflow:hidden;opacity:0;pointer-events:none;
+  transition:max-height .3s ease,opacity .2s ease;
+  border-radius:16px;background:rgba(10,12,18,.92);
   -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(63,185,143,.5);cursor:pointer;font-weight:800;letter-spacing:.03em;
-  box-shadow:0 6px 22px rgba(0,0,0,.5)}
-#panel .bd{max-height:0;overflow:hidden;transition:max-height .32s ease;
-  background:rgba(10,12,18,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,.08)}
-#panel.open .bd{max-height:35vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-#panel .grid{padding:18px 20px 8px;display:flex;flex-direction:column;gap:19px}
-#panel .ctl{display:grid;grid-template-columns:160px 1fr 52px;align-items:center;gap:13px}
+  border:1px solid rgba(255,255,255,.1);box-shadow:0 22px 54px rgba(0,0,0,.55)}
+#panel.open .bd{max-height:35vh;opacity:1;pointer-events:auto;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#panel .grid{padding:14px 16px 6px;display:flex;flex-direction:column;gap:14px}
+#panel .ctl{display:grid;grid-template-columns:118px 1fr 42px;align-items:center;gap:10px}
 #panel .ctl label{color:#aab3c2}
-#panel .ctl input[type=range]{width:100%;height:28px;accent-color:#3fb98f}
-#panel .ctl input[type=color]{width:54px;height:32px;padding:0;border:none;background:none}
+#panel .ctl input[type=range]{width:100%;height:26px;accent-color:#3fb98f}
 #panel .ctl .val{text-align:right;color:#eef2f8;font-variant-numeric:tabular-nums}
-#panel .row{display:flex;gap:10px;padding:10px 20px 22px}
+#panel .row{display:flex;gap:9px;padding:8px 16px 16px}
 #panel button.act{background:rgba(255,255,255,.09);color:#e6ebf2;
-  border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:11px 16px;font-weight:600;font-size:15px;cursor:pointer}
+  border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:9px 13px;font-weight:600;font-size:14px;cursor:pointer}
 #panel button.act:active{transform:scale(.98)}
-#panel .chev{transition:transform .32s;opacity:.8;font-size:16px}
 #panel.open .chev{transform:rotate(180deg)}
 </style>
 </head>
@@ -147,7 +157,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v50</div>
+    <div class="ver">v51</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -168,7 +178,7 @@ vec3 bg(vec2 u, float drift){
   vec3 s = vec3(0.0);
   s += texture2D(iTex, vec2(u.x*0.7,      fract(u.y*0.7 - drift*0.40))).rgb * 0.40;
   s += texture2D(iTex, vec2(u.x*1.0+0.37, fract(u.y*1.0 - drift*(0.8+0.5*pr)))).rgb * 0.80;
-  s += texture2D(iTex, vec2(u.x*1.5+0.13, fract(u.y*1.5 - drift*(1.2+1.8*pr)))).rgb * (0.85+0.55*pr);
+  s += texture2D(iTex, vec2(u.x*0.75+0.13, fract(u.y*0.75 - drift*(1.2+1.8*pr)))).rgb * (0.85+0.55*pr);
   return g + s;
 }
 // signed distance to a rounded rectangle (negative inside)
@@ -292,7 +302,7 @@ void main(){
       '<span class="val" data-v="'+c[0]+'">'+c[5]+'</span></div>';
   });
   panel.innerHTML=
-    '<div class="hd" id="panelHd"><span>&#9881;&#65039; Glass controls &nbsp;<small style="opacity:.75;font-weight:600">tap to open</small></span><span class="chev">&#9662;</span></div>'+
+    '<div class="hd" id="panelHd" role="button" aria-label="Glass controls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="9" cy="8" r="2.4" fill="#0c0d10"/><circle cx="15" cy="16" r="2.4" fill="#0c0d10"/></svg></div>'+
     '<div class="bd"><div class="grid">'+rows+'</div>'+
     '<div class="row"><button class="act" id="copyBtn">Copy settings</button>'+
     '<button class="act" id="resetBtn">Reset</button></div></div>';
