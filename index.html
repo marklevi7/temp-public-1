@@ -107,7 +107,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 #panel .bd{max-height:0;overflow:hidden;transition:max-height .32s ease;
   background:rgba(10,12,18,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   border-bottom:1px solid rgba(255,255,255,.08)}
-#panel.open .bd{max-height:80vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#panel.open .bd{max-height:50vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #panel .grid{padding:18px 20px 8px;display:flex;flex-direction:column;gap:19px}
 #panel .ctl{display:grid;grid-template-columns:160px 1fr 52px;align-items:center;gap:13px}
 #panel .ctl label{color:#aab3c2}
@@ -147,7 +147,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v47</div>
+    <div class="ver">v48</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -233,16 +233,21 @@ void main(){
     var sx=Math.random()*1024, sy=Math.random()*1024, r=Math.random()*1.5+0.2, a=Math.random()*0.7+0.3;
     cx.beginPath(); cx.arc(sx,sy,r,0,6.2832); cx.fillStyle='rgba(255,255,255,'+a+')'; cx.fill();
   }
-  // occasional bigger glowing stars (drift with the field, same direction/speed)
-  for(var j=0;j<22;j++){
-    var bx=Math.random()*1024, by=Math.random()*1024, br=Math.random()*3.5+3;
-    var gg=cx.createRadialGradient(bx,by,0,bx,by,br*3.2);
-    gg.addColorStop(0,'rgba(255,255,255,0.95)');
-    gg.addColorStop(0.35,'rgba(255,255,255,0.4)');
-    gg.addColorStop(1,'rgba(255,255,255,0)');
-    cx.fillStyle=gg; cx.beginPath(); cx.arc(bx,by,br*3.2,0,6.2832); cx.fill();
-    cx.beginPath(); cx.arc(bx,by,br*0.6,0,6.2832); cx.fillStyle='rgba(255,255,255,1)'; cx.fill();
+  // occasional brighter sparkle-stars: crisp core + thin diffraction spikes
+  cx.save(); cx.globalCompositeOperation='lighter';
+  for(var j=0;j<16;j++){
+    var bx=Math.random()*1024, by=Math.random()*1024, L=Math.random()*7+7, core=Math.random()*0.9+1.3;
+    var gh=cx.createLinearGradient(bx-L,by,bx+L,by);
+    gh.addColorStop(0,'rgba(255,255,255,0)'); gh.addColorStop(0.5,'rgba(255,255,255,0.85)'); gh.addColorStop(1,'rgba(255,255,255,0)');
+    cx.fillStyle=gh; cx.fillRect(bx-L,by-0.6,2*L,1.2);
+    var gv=cx.createLinearGradient(bx,by-L,bx,by+L);
+    gv.addColorStop(0,'rgba(255,255,255,0)'); gv.addColorStop(0.5,'rgba(255,255,255,0.85)'); gv.addColorStop(1,'rgba(255,255,255,0)');
+    cx.fillStyle=gv; cx.fillRect(bx-0.6,by-L,1.2,2*L);
+    var gc=cx.createRadialGradient(bx,by,0,bx,by,core*2.4);
+    gc.addColorStop(0,'rgba(255,255,255,1)'); gc.addColorStop(0.5,'rgba(255,255,255,0.5)'); gc.addColorStop(1,'rgba(255,255,255,0)');
+    cx.fillStyle=gc; cx.beginPath(); cx.arc(bx,by,core*2.4,0,6.2832); cx.fill();
   }
+  cx.restore();
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
   var FS = document.getElementById('glassFrag').textContent;
   function mk(t,s){ var o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o);
@@ -268,12 +273,12 @@ void main(){
   // ---- adjustable parameters (uniform, label, min, max, step, default) ----
   var CFG=[
     ['uSpeed','Star speed',0,0.15,0.0025,0.005],
-    ['uParallax','Parallax depth',0,2,0.01,1.36],
-    ['uK','Refraction',0,2,0.01,0.53],
+    ['uParallax','Parallax depth',0,2,0.01,0.68],
+    ['uK','Refraction',0,2,0.01,0.14],
     ['uWarpExp','Refraction falloff',1,6,0.1,5.4],
     ['uChroma','Chromatic aberration',0,0.25,0.005,0.19],
     ['uBlur','Frost blur',0,5,0.05,0],
-    ['uBright','Interior brightness',0.6,1.8,0.01,1.06],
+    ['uBright','Interior brightness',0.6,1.8,0.01,1.19],
     ['uMilk','Frostiness (milk)',0,1,0.01,0.03],
     ['uHL','Reflection strength',0,2,0.01,0.2],
     ['uHLx','Reflection X',-1.2,1.2,0.01,-0.02],
@@ -301,7 +306,6 @@ void main(){
       '<input type="range" data-k="'+c[0]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[4]+'" value="'+c[5]+'">'+
       '<span class="val" data-v="'+c[0]+'">'+c[5]+'</span></div>';
   });
-  rows+='<div class="ctl"><label>Glass tint</label><input type="color" id="tintInput" value="'+rgb2hx(tint)+'"><span class="val"></span></div>';
   panel.innerHTML=
     '<div class="hd" id="panelHd"><span>&#9881;&#65039; Glass controls &nbsp;<small style="opacity:.75;font-weight:600">tap to open</small></span><span class="chev">&#9662;</span></div>'+
     '<div class="bd"><div class="grid">'+rows+'</div>'+
@@ -315,13 +319,11 @@ void main(){
       panel.querySelector('[data-v="'+k+'"]').textContent=(+inp.value).toString();
     });
   });
-  document.getElementById('tintInput').addEventListener('input',function(e){ tint=hx2rgb(e.target.value); });
   document.getElementById('resetBtn').addEventListener('click',function(){
     CFG.forEach(function(c){ P[c[0]]=c[5];
       var inp=panel.querySelector('input[data-k="'+c[0]+'"]'); inp.value=c[5];
       panel.querySelector('[data-v="'+c[0]+'"]').textContent=(+c[5]).toString();
     });
-    tint=[0.72,0.78,0.92]; document.getElementById('tintInput').value=rgb2hx(tint);
   });
   document.getElementById('copyBtn').addEventListener('click',function(){
     var out=Object.assign({},P,{uTint:tint});
