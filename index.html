@@ -86,16 +86,22 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   box-shadow:0 2px 12px rgba(0,0,0,.25),inset 0 0 12px rgba(120,160,255,.05);
   white-space:nowrap;
 }
-.links{width:100%;margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.links{position:relative;width:100%;margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.links::before{content:"";position:absolute;inset:-24px -8px;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(50% 45% at 22% 12%,rgba(63,185,143,.32),transparent 72%),
+    radial-gradient(55% 50% at 82% 55%,rgba(96,142,255,.30),transparent 72%),
+    radial-gradient(50% 45% at 30% 92%,rgba(214,120,255,.22),transparent 72%);
+  filter:blur(26px);opacity:.9}
 .links a{
   position:relative;overflow:hidden;isolation:isolate;
   display:flex;align-items:center;gap:14px;
   color:var(--fg);text-decoration:none;
   padding:19px 18px;border-radius:24px;
   border:1px solid rgba(255,255,255,.14);
-  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
-  -webkit-backdrop-filter:blur(2px) saturate(150%) brightness(1.12);
-  backdrop-filter:url(#liquid-glass) blur(2px) saturate(150%) brightness(1.12);
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.04));
+  -webkit-backdrop-filter:blur(16px) saturate(190%) brightness(1.1);
+  backdrop-filter:url(#liquid-glass) blur(16px) saturate(190%) brightness(1.1);
   box-shadow:0 14px 38px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.06),
     inset 0 1px 1px rgba(255,255,255,.85),
     inset 0 0 0 1px rgba(255,255,255,.05),
@@ -187,7 +193,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v31</div>
+    <div class="ver">v32</div>
   </footer>
 </main>
 </body>
