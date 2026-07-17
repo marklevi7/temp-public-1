@@ -96,6 +96,29 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .qr-card span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5b6472;font-weight:600}
 footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 .ver{opacity:.45;margin-top:4px}
+/* glass controls panel (accordion, top) */
+#panel{position:fixed;top:0;left:0;right:0;z-index:40;
+  font:12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6ebf2}
+#panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 16px;background:rgba(10,12,18,.78);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;font-weight:700;letter-spacing:.03em}
+#panel .bd{max-height:0;overflow:hidden;transition:max-height .32s ease;
+  background:rgba(10,12,18,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+#panel.open .bd{max-height:78vh;overflow-y:auto}
+#panel .grid{padding:12px 16px 6px;display:flex;flex-direction:column;gap:9px}
+#panel .ctl{display:grid;grid-template-columns:130px 1fr 44px;align-items:center;gap:10px}
+#panel .ctl label{color:#aab3c2}
+#panel .ctl input[type=range]{width:100%;accent-color:#3fb98f}
+#panel .ctl input[type=color]{width:44px;height:24px;padding:0;border:none;background:none}
+#panel .ctl .val{text-align:right;color:#eef2f8;font-variant-numeric:tabular-nums}
+#panel .row{display:flex;gap:8px;padding:8px 16px 16px}
+#panel button.act{background:rgba(255,255,255,.09);color:#e6ebf2;
+  border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer}
+#panel button.act:active{transform:scale(.98)}
+#panel .chev{transition:transform .32s;opacity:.8}
+#panel.open .chev{transform:rotate(180deg)}
 </style>
 </head>
 <body>
@@ -123,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v38</div>
+    <div class="ver">v39</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -133,6 +156,10 @@ uniform float iTime;
 uniform sampler2D iTex;
 uniform int uCount;
 uniform vec4 uBox[6];
+uniform float uK, uWarpExp, uChroma, uBlur, uBright, uMilk;
+uniform vec3 uTint;
+uniform float uHL, uHLx, uHLy, uHLsize, uHLsharp;
+uniform float uRim, uRimStart, uRadius, uEdge, uInner, uSpeed;
 vec3 bg(vec2 u, float drift){
   vec3 g = mix(vec3(0.105,0.150,0.208), vec3(0.020,0.024,0.040), clamp(u.y,0.0,1.0));
   vec3 s = texture2D(iTex, vec2(u.x, fract(u.y - drift))).rgb;
@@ -146,30 +173,27 @@ float sdRoundRect(vec2 rel, vec2 hs, float r){
 void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
-  float drift = iTime * 0.06;
+  float drift = iTime * uSpeed;
   vec3 col = bg(uv, drift);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
     vec2 c = uBox[i].xy;
     vec2 hs = uBox[i].zw;
     vec2 p = (fc - c) / hs;
-    float radius = min(26.0, min(hs.x, hs.y) * 0.9);
+    float radius = min(uRadius, min(hs.x, hs.y) * 0.95);
     float sd = sdRoundRect(fc - c, hs, radius);
     float edgeSpan = min(hs.x, hs.y);
-    // d: 0 at center, 1 at the rounded-rect boundary (drives the glass shading)
     float d = clamp(1.0 + sd / edgeSpan, 0.0, 1.4);
     if(sd < 2.0){
-      // strong edge refraction: bend the background hard near the borders
-      float k = 0.85;
-      float warp = pow(d, 3.0) * k;
+      float warp = pow(d, uWarpExp) * uK;
       vec2 basev = fc - c;
-      vec2 luvR = (basev * (1.0 - warp*1.05) + c) / iRes;
+      vec2 luvR = (basev * (1.0 - warp*(1.0+uChroma)) + c) / iRes;
       vec2 luvG = (basev * (1.0 - warp) + c) / iRes;
-      vec2 luvB = (basev * (1.0 - warp*0.95) + c) / iRes;
+      vec2 luvB = (basev * (1.0 - warp*(1.0-uChroma)) + c) / iRes;
       vec3 acc = vec3(0.0); float tot = 0.0;
       for(float x=-2.0;x<=2.0;x++){
         for(float y=-2.0;y<=2.0;y++){
-          vec2 o = vec2(x,y) * 1.0 / iRes;
+          vec2 o = vec2(x,y) * uBlur / iRes;
           acc.r += bg(luvR + o, drift).r;
           acc.g += bg(luvG + o, drift).g;
           acc.b += bg(luvB + o, drift).b;
@@ -177,15 +201,14 @@ void main(){
         }
       }
       acc /= tot;
-      // clear glass: keep the refracted content, add gloss + crisp bright rim
-      vec3 glass = acc * 1.06;
-      float hl = clamp(1.0 - length(p - vec2(-0.32,0.5)) * 1.05, 0.0, 1.0);
-      glass += pow(hl, 1.6) * 0.42;                              // soft reflection highlight
-      float rim = smoothstep(0.9,1.0,d) - smoothstep(1.0,1.03,d);
-      glass += rim * 0.9;                                        // crisp bright edge
-      float inner = smoothstep(0.9,0.55,d);
-      glass += inner * 0.03;                                     // faint interior lift
-      float m = 1.0 - smoothstep(-1.0, 1.0, sd);                 // crisp anti-aliased rounded-rect edge
+      vec3 glass = acc * uBright;
+      glass = mix(glass, uTint, uMilk);
+      float hl = clamp(1.0 - length(p - vec2(uHLx, uHLy)) * uHLsize, 0.0, 1.0);
+      glass += pow(hl, uHLsharp) * uHL;
+      float rim = smoothstep(uRimStart, 1.0, d) * (1.0 - smoothstep(1.0, 1.06, d));
+      glass += rim * uRim;
+      glass += smoothstep(0.9, 0.55, d) * uInner;
+      float m = 1.0 - smoothstep(-uEdge, uEdge, sd);
       col = mix(col, min(glass, vec3(1.0)), m);
     }
   }
@@ -225,6 +248,71 @@ void main(){
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
+
+  // ---- adjustable parameters (uniform name, label, min, max, step, default) ----
+  var CFG=[
+    ['uSpeed','Star speed',0,0.3,0.005,0.06],
+    ['uK','Refraction',0,2,0.01,0.85],
+    ['uWarpExp','Refraction falloff',1,6,0.1,3],
+    ['uChroma','Chromatic aberration',0,0.25,0.005,0.05],
+    ['uBlur','Frost blur',0,5,0.05,1.0],
+    ['uBright','Interior brightness',0.6,1.8,0.01,1.06],
+    ['uMilk','Frostiness (milk)',0,1,0.01,0.0],
+    ['uHL','Reflection strength',0,2,0.01,0.42],
+    ['uHLx','Reflection X',-1.2,1.2,0.01,-0.32],
+    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.5],
+    ['uHLsize','Reflection size',0.4,3,0.01,1.05],
+    ['uHLsharp','Reflection sharpness',0.4,5,0.05,1.6],
+    ['uRim','Edge glow',0,2.5,0.01,0.9],
+    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.9],
+    ['uRadius','Corner radius',0,44,1,26],
+    ['uEdge','Edge softness',0.3,4,0.1,1.0],
+    ['uInner','Inner lift',0,0.3,0.005,0.03]
+  ];
+  var P={}, ULoc={};
+  CFG.forEach(function(c){ P[c[0]]=c[5]; ULoc[c[0]]=gl.getUniformLocation(prog,c[0]); });
+  var tint=[0.72,0.78,0.92];
+  var uTintLoc=gl.getUniformLocation(prog,'uTint');
+
+  // ---- build accordion control panel ----
+  function hx2rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
+  function rgb2hx(c){function t(v){return ('0'+Math.round(v*255).toString(16)).slice(-2);}return '#'+t(c[0])+t(c[1])+t(c[2]);}
+  var panel=document.createElement('div'); panel.id='panel';
+  var rows='';
+  CFG.forEach(function(c){
+    rows+='<div class="ctl"><label>'+c[1]+'</label>'+
+      '<input type="range" data-k="'+c[0]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[4]+'" value="'+c[5]+'">'+
+      '<span class="val" data-v="'+c[0]+'">'+c[5]+'</span></div>';
+  });
+  rows+='<div class="ctl"><label>Glass tint</label><input type="color" id="tintInput" value="'+rgb2hx(tint)+'"><span class="val"></span></div>';
+  panel.innerHTML=
+    '<div class="hd" id="panelHd"><span>&#9881;&#65039; Glass controls</span><span class="chev">&#9662;</span></div>'+
+    '<div class="bd"><div class="grid">'+rows+'</div>'+
+    '<div class="row"><button class="act" id="copyBtn">Copy settings</button>'+
+    '<button class="act" id="resetBtn">Reset</button></div></div>';
+  document.body.appendChild(panel);
+  document.getElementById('panelHd').addEventListener('click',function(){ panel.classList.toggle('open'); });
+  panel.querySelectorAll('input[type=range]').forEach(function(inp){
+    inp.addEventListener('input',function(){
+      var k=inp.getAttribute('data-k'); P[k]=parseFloat(inp.value);
+      panel.querySelector('[data-v="'+k+'"]').textContent=(+inp.value).toString();
+    });
+  });
+  document.getElementById('tintInput').addEventListener('input',function(e){ tint=hx2rgb(e.target.value); });
+  document.getElementById('resetBtn').addEventListener('click',function(){
+    CFG.forEach(function(c){ P[c[0]]=c[5];
+      var inp=panel.querySelector('input[data-k="'+c[0]+'"]'); inp.value=c[5];
+      panel.querySelector('[data-v="'+c[0]+'"]').textContent=(+c[5]).toString();
+    });
+    tint=[0.72,0.78,0.92]; document.getElementById('tintInput').value=rgb2hx(tint);
+  });
+  document.getElementById('copyBtn').addEventListener('click',function(){
+    var out=Object.assign({},P,{uTint:tint});
+    var txt=JSON.stringify(out,null,2);
+    if(navigator.clipboard){ navigator.clipboard.writeText(txt); }
+    this.textContent='Copied!'; var b=this; setTimeout(function(){b.textContent='Copy settings';},1200);
+  });
+
   var W,H;
   function resize(){ W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; }
   resize();
@@ -243,6 +331,8 @@ void main(){
     gl.uniform1f(U.time,(performance.now()-start)/1000);
     gl.uniform1i(U.count,n);
     gl.uniform4fv(U.box,new Float32Array(data));
+    for(var k in ULoc){ gl.uniform1f(ULoc[k], P[k]); }
+    gl.uniform3f(uTintLoc, tint[0], tint[1], tint[2]);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,tex); gl.uniform1i(U.tex,0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     requestAnimationFrame(frame);
