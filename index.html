@@ -123,7 +123,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v35</div>
+    <div class="ver">v36</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -141,7 +141,7 @@ vec3 bg(vec2 u, float drift){
 void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
-  float drift = iTime * 0.005;
+  float drift = iTime * 0.015;
   vec3 col = bg(uv, drift);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
@@ -168,11 +168,12 @@ void main(){
         }
       }
       acc /= tot;
-      vec3 glass = mix(acc, vec3(0.62,0.68,0.80), 0.42);
-      float rim = smoothstep(0.72,1.0,d);
-      glass += rim * 0.55;
-      glass += clamp(p.y,0.0,1.0) * 0.07;
-      float m = smoothstep(1.0,0.84,d);
+      vec3 glass = acc * 1.18;
+      glass = mix(glass, vec3(0.72,0.78,0.92), 0.20);
+      float rim = smoothstep(0.80,1.0,d);
+      glass += rim * 0.62;
+      glass += smoothstep(0.05,1.0,p.y) * 0.10;
+      float m = smoothstep(1.0,0.9,d);
       col = mix(col, min(glass, vec3(1.0)), m);
     }
   }
