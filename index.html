@@ -96,30 +96,6 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .qr-card span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#5b6472;font-weight:600}
 footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 .ver{opacity:.45;margin-top:4px}
-/* glass controls panel (accordion, top) */
-#panel{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;z-index:60;
-  font:12px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#e6ebf2}
-#panel .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:13px 16px;background:linear-gradient(180deg,rgba(63,185,143,.32),rgba(10,12,18,.9));
-  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(63,185,143,.5);cursor:pointer;font-weight:800;letter-spacing:.03em;
-  box-shadow:0 6px 22px rgba(0,0,0,.5)}
-#panel .bd{max-height:0;overflow:hidden;transition:max-height .32s ease;
-  background:rgba(10,12,18,.9);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,.08)}
-#panel.open .bd{max-height:78vh;overflow-y:auto}
-#panel .grid{padding:12px 16px 6px;display:flex;flex-direction:column;gap:9px}
-#panel .ctl{display:grid;grid-template-columns:130px 1fr 44px;align-items:center;gap:10px}
-#panel .ctl label{color:#aab3c2}
-#panel .ctl input[type=range]{width:100%;accent-color:#3fb98f}
-#panel .ctl input[type=color]{width:44px;height:24px;padding:0;border:none;background:none}
-#panel .ctl .val{text-align:right;color:#eef2f8;font-variant-numeric:tabular-nums}
-#panel .row{display:flex;gap:8px;padding:8px 16px 16px}
-#panel button.act{background:rgba(255,255,255,.09);color:#e6ebf2;
-  border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer}
-#panel button.act:active{transform:scale(.98)}
-#panel .chev{transition:transform .32s;opacity:.8}
-#panel.open .chev{transform:rotate(180deg)}
 </style>
 </head>
 <body>
@@ -147,7 +123,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v40</div>
+    <div class="ver">v41</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -251,68 +227,16 @@ void main(){
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
 
   // ---- adjustable parameters (uniform name, label, min, max, step, default) ----
-  var CFG=[
-    ['uSpeed','Star speed',0,0.3,0.005,0.06],
-    ['uK','Refraction',0,2,0.01,0.85],
-    ['uWarpExp','Refraction falloff',1,6,0.1,3],
-    ['uChroma','Chromatic aberration',0,0.25,0.005,0.05],
-    ['uBlur','Frost blur',0,5,0.05,1.0],
-    ['uBright','Interior brightness',0.6,1.8,0.01,1.06],
-    ['uMilk','Frostiness (milk)',0,1,0.01,0.0],
-    ['uHL','Reflection strength',0,2,0.01,0.42],
-    ['uHLx','Reflection X',-1.2,1.2,0.01,-0.32],
-    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.5],
-    ['uHLsize','Reflection size',0.4,3,0.01,1.05],
-    ['uHLsharp','Reflection sharpness',0.4,5,0.05,1.6],
-    ['uRim','Edge glow',0,2.5,0.01,0.9],
-    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.9],
-    ['uRadius','Corner radius',0,44,1,26],
-    ['uEdge','Edge softness',0.3,4,0.1,1.0],
-    ['uInner','Inner lift',0,0.3,0.005,0.03]
-  ];
-  var P={}, ULoc={};
-  CFG.forEach(function(c){ P[c[0]]=c[5]; ULoc[c[0]]=gl.getUniformLocation(prog,c[0]); });
+  // baked-in glass parameters (dialed in via the tuning panel)
+  var P={
+    uSpeed:0.035, uK:0.85, uWarpExp:5.4, uChroma:0.19, uBlur:1.05, uBright:1.06,
+    uMilk:0.03, uHL:0.2, uHLx:-0.02, uHLy:0.73, uHLsize:1.14, uHLsharp:2.15,
+    uRim:0.13, uRimStart:0.83, uRadius:40, uEdge:0.3, uInner:0.03
+  };
+  var ULoc={};
+  for(var pk in P){ ULoc[pk]=gl.getUniformLocation(prog,pk); }
   var tint=[0.72,0.78,0.92];
   var uTintLoc=gl.getUniformLocation(prog,'uTint');
-
-  // ---- build accordion control panel ----
-  function hx2rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
-  function rgb2hx(c){function t(v){return ('0'+Math.round(v*255).toString(16)).slice(-2);}return '#'+t(c[0])+t(c[1])+t(c[2]);}
-  var panel=document.createElement('div'); panel.id='panel';
-  var rows='';
-  CFG.forEach(function(c){
-    rows+='<div class="ctl"><label>'+c[1]+'</label>'+
-      '<input type="range" data-k="'+c[0]+'" min="'+c[2]+'" max="'+c[3]+'" step="'+c[4]+'" value="'+c[5]+'">'+
-      '<span class="val" data-v="'+c[0]+'">'+c[5]+'</span></div>';
-  });
-  rows+='<div class="ctl"><label>Glass tint</label><input type="color" id="tintInput" value="'+rgb2hx(tint)+'"><span class="val"></span></div>';
-  panel.innerHTML=
-    '<div class="hd" id="panelHd"><span>&#9881;&#65039; Glass controls &nbsp;<small style="opacity:.75;font-weight:600">tap to open</small></span><span class="chev">&#9662;</span></div>'+
-    '<div class="bd"><div class="grid">'+rows+'</div>'+
-    '<div class="row"><button class="act" id="copyBtn">Copy settings</button>'+
-    '<button class="act" id="resetBtn">Reset</button></div></div>';
-  document.body.appendChild(panel);
-  document.getElementById('panelHd').addEventListener('click',function(){ panel.classList.toggle('open'); });
-  panel.querySelectorAll('input[type=range]').forEach(function(inp){
-    inp.addEventListener('input',function(){
-      var k=inp.getAttribute('data-k'); P[k]=parseFloat(inp.value);
-      panel.querySelector('[data-v="'+k+'"]').textContent=(+inp.value).toString();
-    });
-  });
-  document.getElementById('tintInput').addEventListener('input',function(e){ tint=hx2rgb(e.target.value); });
-  document.getElementById('resetBtn').addEventListener('click',function(){
-    CFG.forEach(function(c){ P[c[0]]=c[5];
-      var inp=panel.querySelector('input[data-k="'+c[0]+'"]'); inp.value=c[5];
-      panel.querySelector('[data-v="'+c[0]+'"]').textContent=(+c[5]).toString();
-    });
-    tint=[0.72,0.78,0.92]; document.getElementById('tintInput').value=rgb2hx(tint);
-  });
-  document.getElementById('copyBtn').addEventListener('click',function(){
-    var out=Object.assign({},P,{uTint:tint});
-    var txt=JSON.stringify(out,null,2);
-    if(navigator.clipboard){ navigator.clipboard.writeText(txt); }
-    this.textContent='Copied!'; var b=this; setTimeout(function(){b.textContent='Copy settings';},1200);
-  });
 
   var W,H;
   function resize(){ W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; }
