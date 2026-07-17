@@ -92,30 +92,28 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   display:flex;align-items:center;gap:14px;
   color:var(--fg);text-decoration:none;
   padding:19px 18px;border-radius:24px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.055);
-  -webkit-backdrop-filter:blur(10px) saturate(200%) brightness(1.12);
-  backdrop-filter:url(#liquid-glass) blur(3px) saturate(200%) brightness(1.12);
-  box-shadow:0 14px 40px rgba(0,0,0,.42),
-    inset 0 1px 0 rgba(255,255,255,.75),
-    inset 0 0 0 1px rgba(255,255,255,.06),
-    inset 0 -14px 26px rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
+  -webkit-backdrop-filter:blur(2px) saturate(150%) brightness(1.12);
+  backdrop-filter:url(#liquid-glass) blur(2px) saturate(150%) brightness(1.12);
+  box-shadow:0 14px 38px rgba(0,0,0,.45),0 1px 0 rgba(255,255,255,.06),
+    inset 0 1px 1px rgba(255,255,255,.85),
+    inset 0 0 0 1px rgba(255,255,255,.05),
+    inset 0 -10px 20px rgba(255,255,255,.05);
   font-size:16px;font-weight:600;letter-spacing:.2px;
   transition:transform .2s cubic-bezier(.2,.7,.2,1),border-color .2s ease,box-shadow .2s ease,background .2s ease;
 }
-/* crisp specular sweep along the top edge */
+/* glossy reflection streak across the top — the glass tell */
 .links a::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(120% 80% at 18% -10%,rgba(255,255,255,.6),rgba(255,255,255,0) 42%),
-    linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 30%);
+  background:linear-gradient(158deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,.10) 14%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 82%,rgba(255,255,255,.08) 100%);
   mix-blend-mode:screen}
 .links a>*{position:relative;z-index:1}
-.links a:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.28);
-  background:rgba(255,255,255,.09);
-  box-shadow:0 20px 48px rgba(0,0,0,.5),0 0 0 1px rgba(63,185,143,.3),
-    inset 0 1px 0 rgba(255,255,255,.9),
-    inset 0 0 0 1px rgba(255,255,255,.08),
-    inset 0 -14px 26px rgba(0,0,0,.2)}
+.links a:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.24);
+  background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.04));
+  box-shadow:0 20px 46px rgba(0,0,0,.5),0 0 0 1px rgba(63,185,143,.3),
+    inset 0 1px 1px rgba(255,255,255,1),
+    inset 0 0 0 1px rgba(255,255,255,.07),
+    inset 0 -10px 20px rgba(255,255,255,.06)}
 .links a:active{transform:translateY(0)}
 .ico{width:24px;height:24px;flex:0 0 24px;display:flex;align-items:center;justify-content:center;color:var(--fg)}
 .ico svg{width:22px;height:22px;display:block}
@@ -127,18 +125,18 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   color:var(--fg);overflow:hidden;isolation:isolate;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.055);
-  -webkit-backdrop-filter:blur(10px) saturate(200%) brightness(1.12);
-  backdrop-filter:url(#liquid-glass) blur(3px) saturate(200%) brightness(1.12);
-  box-shadow:0 10px 26px rgba(0,0,0,.4),
-    inset 0 1px 0 rgba(255,255,255,.75),inset 0 -8px 16px rgba(0,0,0,.2);
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
+  -webkit-backdrop-filter:blur(2px) saturate(150%) brightness(1.12);
+  backdrop-filter:url(#liquid-glass) blur(2px) saturate(150%) brightness(1.12);
+  box-shadow:0 10px 24px rgba(0,0,0,.42),
+    inset 0 1px 1px rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.05);
   transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease}
 .qr-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:radial-gradient(120% 100% at 20% -10%,rgba(255,255,255,.7),rgba(255,255,255,0) 50%);
+  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,0) 45%);
   mix-blend-mode:screen}
 .qr-btn svg{position:relative;z-index:1}
-.qr-btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.28)}
+.qr-btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.24)}
 .qr-btn svg{width:22px;height:22px;display:block}
 .qr-modal{
   position:fixed;inset:0;z-index:19;display:none;
@@ -189,7 +187,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v30</div>
+    <div class="ver">v31</div>
   </footer>
 </main>
 </body>
