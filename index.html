@@ -157,7 +157,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v51</div>
+    <div class="ver">v52</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -277,14 +277,14 @@ void main(){
     ['uMilk','Frostiness (milk)',0,1,0.01,0.03],
     ['uHL','Reflection strength',0,2,0.01,0.2],
     ['uHLx','Reflection X',-1.2,1.2,0.01,-0.02],
-    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.73],
-    ['uHLsize','Reflection size',0.4,3,0.01,1.14],
-    ['uHLsharp','Reflection sharpness',0.4,5,0.05,2.15],
-    ['uRim','Edge glow',0,2.5,0.01,0.13],
-    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.83],
-    ['uRadius','Corner radius',0,44,1,40],
+    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.89],
+    ['uHLsize','Reflection size',0.4,3,0.01,1.21],
+    ['uHLsharp','Reflection sharpness',0.4,5,0.05,0.4],
+    ['uRim','Edge glow',0,2.5,0.01,0.08],
+    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.565],
+    ['uRadius','Corner radius',0,44,1,19],
     ['uEdge','Edge softness',0.3,4,0.1,0.3],
-    ['uInner','Inner lift',0,0.3,0.005,0.03]
+    ['uInner','Inner lift',0,0.3,0.005,0.02]
   ];
   var P={}, ULoc={};
   CFG.forEach(function(c){ P[c[0]]=c[5]; ULoc[c[0]]=gl.getUniformLocation(prog,c[0]); });
