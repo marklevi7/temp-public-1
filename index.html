@@ -157,7 +157,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v53</div>
+    <div class="ver">v54</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -242,6 +242,11 @@ void main(){
   for(var i=0;i<540;i++){
     var sx=Math.random()*1024, sy=Math.random()*1024, r=Math.random()*1.5+0.2, a=Math.random()*0.7+0.3;
     cx.beginPath(); cx.arc(sx,sy,r,0,6.2832); cx.fillStyle='rgba(255,255,255,'+a+')'; cx.fill();
+  }
+  // a few ~3x larger stars (simple)
+  for(var k=0;k<12;k++){
+    var kx=Math.random()*1024, ky=Math.random()*1024, kr=Math.random()*1.8+3;
+    cx.beginPath(); cx.arc(kx,ky,kr,0,6.2832); cx.fillStyle='rgba(255,255,255,0.95)'; cx.fill();
   }
   var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
   var FS = document.getElementById('glassFrag').textContent;
