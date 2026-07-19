@@ -24,7 +24,7 @@ body{
 }
 .wrap{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
 .avatar{
-  width:184px;height:184px;border-radius:50%;object-fit:cover;display:block;position:relative;
+  width:138px;height:138px;border-radius:50%;object-fit:cover;display:block;position:relative;
   box-shadow:0 14px 40px rgba(0,0,0,.5);
 }
 h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spacing:-.5px}
@@ -156,7 +156,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v58</div>
+    <div class="ver">v59</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -347,7 +347,7 @@ void main(){
     }
     var count=n;
     if(avatar && count<6){
-      var ar=avatar.getBoundingClientRect(); var pad=11;
+      var ar=avatar.getBoundingClientRect(); var pad=30;
       data.push(ar.left+ar.width/2, H-(ar.top+ar.height/2), ar.width/2+pad, ar.height/2+pad);
       count=n+1;
     }
