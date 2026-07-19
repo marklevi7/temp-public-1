@@ -157,7 +157,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v54</div>
+    <div class="ver">v55</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -288,11 +288,12 @@ void main(){
     ['uRim','Edge glow',0,2.5,0.01,0.08],
     ['uRimStart','Edge glow width',0.5,0.99,0.005,0.565],
     ['uRadius','Corner radius',0,44,1,19],
-    ['uEdge','Edge softness',0.3,4,0.1,0.3],
     ['uInner','Inner lift',0,0.3,0.005,0.02]
   ];
   var P={}, ULoc={};
   CFG.forEach(function(c){ P[c[0]]=c[5]; ULoc[c[0]]=gl.getUniformLocation(prog,c[0]); });
+  // edge softness kept fixed (no slider)
+  P.uEdge=0.3; ULoc.uEdge=gl.getUniformLocation(prog,'uEdge');
   var tint=[0.72,0.78,0.92];
   var uTintLoc=gl.getUniformLocation(prog,'uTint');
 
