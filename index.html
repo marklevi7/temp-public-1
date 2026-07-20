@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v73</div>
+    <div class="ver">v74</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -355,7 +355,7 @@ void main(){
   function onTilt(e){
     var g=e.gamma; if(g==null) return;
     if(g>45)g=45; if(g<-45)g=-45;
-    tiltTarget=(g/45)*1.0; // full edge-to-edge at 45 degrees
+    tiltTarget=(g/45)*-1.0; // fixed light source: tilt right -> light left
   }
   function startTilt(){
     if(tiltOn) return; tiltOn=true;
