@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v61</div>
+    <div class="ver">v62</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -200,6 +200,37 @@ vec3 comets(vec2 uv, float t){
   c += oneComet(p, A, t, 17.0, 0.37, 0.26, 0.005);
   return c;
 }
+// value noise + fBm (for the Milky Way nebula band)
+float vhash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123); }
+float vnoise(vec2 p){
+  vec2 i=floor(p), f=fract(p);
+  vec2 u=f*f*(3.0-2.0*f);
+  return mix(mix(vhash(i),vhash(i+vec2(1.0,0.0)),u.x),
+             mix(vhash(i+vec2(0.0,1.0)),vhash(i+vec2(1.0,1.0)),u.x),u.y);
+}
+float fbm2(vec2 p){
+  float v=0.0, a=0.5;
+  for(int i=0;i<4;i++){ v+=a*vnoise(p); p*=2.02; a*=0.5; }
+  return v;
+}
+// domain-warped fBm nebula, concentrated along a diagonal galactic band
+vec3 milkyway(vec2 uv){
+  vec2 A=vec2(iRes.x/iRes.y,1.0);
+  vec2 p=uv*A;
+  float ca=cos(-0.55), sa=sin(-0.55);
+  vec2 q=mat2(ca,-sa,sa,ca)*(p-vec2(0.72,0.52));
+  float band=exp(-q.y*q.y*6.5);
+  vec2 w=vec2(fbm2(p*3.0), fbm2(p*3.0+5.2));      // domain warp
+  float n=fbm2(p*3.2 + w*1.6);
+  float dust=fbm2(p*6.5 + w*2.2);
+  vec3 col=vec3(0.0);
+  col += vec3(0.15,0.12,0.27) * band * smoothstep(0.28,0.9,n) * 0.95;   // purple haze
+  col += vec3(0.09,0.15,0.30) * band * smoothstep(0.42,1.0,n) * 0.65;   // blue
+  col += vec3(0.30,0.13,0.22) * band * smoothstep(0.55,1.0,n) * 0.35;   // magenta wisps
+  col *= mix(1.0, 0.32, smoothstep(0.45,0.78,dust)*band);               // dark dust lanes
+  col += vec3(0.05,0.05,0.09) * band*band;                              // faint core glow
+  return col;
+}
 // signed distance to a rounded rectangle (negative inside)
 float sdRoundRect(vec2 rel, vec2 hs, float r){
   vec2 q = abs(rel) - hs + vec2(r);
@@ -209,7 +240,7 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
   float drift = iTime * uSpeed;
-  vec3 col = bg(uv, drift) + comets(uv, iTime);
+  vec3 col = bg(uv, drift) + milkyway(uv) + comets(uv, iTime);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
     vec2 c = uBox[i].xy;
@@ -236,7 +267,7 @@ void main(){
         }
       }
       acc /= tot;
-      acc += comets(luvG, iTime);
+      acc += milkyway(luvG) + comets(luvG, iTime);
       vec3 glass = acc * uBright;
       glass = mix(glass, uTint, uMilk);
       float hl = clamp(1.0 - length(p - vec2(uHLx, uHLy)) * uHLsize, 0.0, 1.0);
