@@ -32,7 +32,7 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
 .tags{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:12px;max-width:380px}
 .tag{
   font-size:13px;font-weight:600;color:#d6dce6;
-  background:rgba(255,255,255,.05);
+  background:rgba(255,255,255,.028);
   border:1px solid rgba(255,255,255,.11);
   padding:9px 15px;border-radius:999px;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
@@ -45,7 +45,7 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   position:relative;
   display:flex;align-items:center;gap:14px;
   color:var(--fg);text-decoration:none;
-  padding:19px 18px;border-radius:24px;
+  padding:19px 22px;border-radius:999px;
   background:transparent;
   font-size:16px;font-weight:600;letter-spacing:.2px;
   text-shadow:0 1px 6px rgba(0,0,0,.35);
@@ -65,19 +65,13 @@ h1{font-size:30px;font-weight:800;margin-top:22px;text-align:center;letter-spaci
   position:fixed;top:16px;right:16px;z-index:20;
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--fg);overflow:hidden;isolation:isolate;
-  border:1px solid rgba(255,255,255,.14);
-  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
-  -webkit-backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
-  backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
-  box-shadow:0 10px 24px rgba(0,0,0,.42),
-    inset 0 1px 1px rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.05);
+  color:var(--fg);
+  background:rgba(255,255,255,.028);
+  border:1px solid rgba(255,255,255,.11);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 2px 12px rgba(0,0,0,.25),inset 0 0 12px rgba(120,160,255,.05);
   transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease}
-.qr-btn::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,0) 45%);
-  mix-blend-mode:screen}
-.qr-btn svg{position:relative;z-index:1}
-.qr-btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.24)}
+.qr-btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.22)}
 .qr-btn svg{width:22px;height:22px;display:block}
 .qr-modal{
   position:fixed;inset:0;z-index:19;display:none;
@@ -100,18 +94,14 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 #panel .hd{position:fixed;top:16px;left:16px;z-index:20;
   width:44px;height:44px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--fg);overflow:hidden;isolation:isolate;
-  border:1px solid rgba(255,255,255,.14);
-  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03));
-  -webkit-backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
-  backdrop-filter:blur(8px) saturate(150%) brightness(1.12);
-  box-shadow:0 10px 24px rgba(0,0,0,.42),
-    inset 0 1px 1px rgba(255,255,255,.9),inset 0 0 0 1px rgba(255,255,255,.05);
+  color:var(--fg);
+  background:rgba(255,255,255,.028);
+  border:1px solid rgba(255,255,255,.11);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 2px 12px rgba(0,0,0,.25),inset 0 0 12px rgba(120,160,255,.05);
   transition:transform .18s cubic-bezier(.2,.7,.2,1),border-color .18s ease}
-#panel .hd::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,0) 45%);mix-blend-mode:screen}
-#panel .hd svg{width:22px;height:22px;display:block;position:relative;z-index:1}
-#panel .hd:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.24)}
+#panel .hd svg{width:22px;height:22px;display:block}
+#panel .hd:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.22)}
 #panel .bd{position:fixed;top:72px;left:16px;z-index:19;width:min(90vw,340px);
   max-height:0;overflow:hidden;opacity:0;pointer-events:none;
   transition:max-height .3s ease,opacity .2s ease;
@@ -156,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v59</div>
+    <div class="ver">v60</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -175,10 +165,48 @@ vec3 bg(vec2 u, float drift){
   float pr = uParallax;
   // three depth layers moving at different speeds/scales -> parallax
   vec3 s = vec3(0.0);
-  s += texture2D(iTex, vec2(u.x*0.7,      fract(u.y*0.7 - drift*0.40))).rgb * 0.40;
-  s += texture2D(iTex, vec2(u.x*1.0+0.37, fract(u.y*1.0 - drift*(0.8+0.5*pr)))).rgb * 0.80;
-  s += texture2D(iTex, vec2(u.x*0.75+0.13, fract(u.y*0.75 - drift*(1.2+1.8*pr)))).rgb * (0.85+0.55*pr);
+  // far: small, slow, dim  ->  near: big, fast, bright
+  s += texture2D(iTex, vec2(u.x*1.4,       fract(u.y*1.4  - drift*0.35))).rgb * 0.38;
+  s += texture2D(iTex, vec2(u.x*1.0+0.37,  fract(u.y*1.0  - drift*(0.8+0.6*pr)))).rgb * 0.72;
+  s += texture2D(iTex, vec2(u.x*0.62+0.13, fract(u.y*0.62 - drift*(1.5+2.4*pr)))).rgb * (0.85+0.55*pr);
   return g + s;
+}
+// comets: bright head + tapering tail, streak across occasionally
+vec3 comets(vec2 uv, float t){
+  vec2 A = vec2(iRes.x/iRes.y, 1.0);
+  vec2 p = uv*A;
+  vec3 c = vec3(0.0);
+  // comet 1
+  {
+    float per=11.0; float ph=fract(t/per);
+    float active = smoothstep(0.0,0.03,ph)*smoothstep(0.34,0.30,ph);
+    vec2 s0=vec2(-0.15,0.98)*A, e0=vec2(1.15,0.34)*A;
+    vec2 head=mix(s0,e0,clamp(ph/0.34,0.0,1.0));
+    vec2 dir=normalize(e0-s0);
+    vec2 rel=p-head;
+    float along=dot(rel,-dir), perp=abs(dot(rel,vec2(-dir.y,dir.x)));
+    float len=0.30, w=0.006;
+    float tail=clamp(1.0-along/len,0.0,1.0)*step(0.0,along);
+    float body=smoothstep(w*(0.25+0.75*(1.0-along/len)),0.0,perp)*tail;
+    float head0=smoothstep(0.02,0.0,length(rel));
+    c += (head0*1.3 + body*0.7)*active*vec3(0.85,0.9,1.0);
+  }
+  // comet 2 (other direction / timing)
+  {
+    float per=17.0; float ph=fract(t/per+0.5);
+    float active = smoothstep(0.0,0.03,ph)*smoothstep(0.30,0.26,ph);
+    vec2 s0=vec2(1.1,0.92)*A, e0=vec2(-0.1,0.42)*A;
+    vec2 head=mix(s0,e0,clamp(ph/0.30,0.0,1.0));
+    vec2 dir=normalize(e0-s0);
+    vec2 rel=p-head;
+    float along=dot(rel,-dir), perp=abs(dot(rel,vec2(-dir.y,dir.x)));
+    float len=0.26, w=0.005;
+    float tail=clamp(1.0-along/len,0.0,1.0)*step(0.0,along);
+    float body=smoothstep(w*(0.25+0.75*(1.0-along/len)),0.0,perp)*tail;
+    float head0=smoothstep(0.018,0.0,length(rel));
+    c += (head0*1.2 + body*0.6)*active*vec3(0.9,0.92,1.0);
+  }
+  return c;
 }
 // signed distance to a rounded rectangle (negative inside)
 float sdRoundRect(vec2 rel, vec2 hs, float r){
@@ -189,13 +217,13 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
   float drift = iTime * uSpeed;
-  vec3 col = bg(uv, drift);
+  vec3 col = bg(uv, drift) + comets(uv, iTime);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
     vec2 c = uBox[i].xy;
     vec2 hs = uBox[i].zw;
     vec2 p = (fc - c) / hs;
-    float radius = (abs(hs.x - hs.y) < 2.0) ? min(hs.x, hs.y) : min(uRadius, min(hs.x, hs.y) * 0.95);
+    float radius = min(hs.x, hs.y);   // full pill (wide boxes) / circle (square avatar)
     float sd = sdRoundRect(fc - c, hs, radius);
     float edgeSpan = min(hs.x, hs.y);
     float d = clamp(1.0 + sd / edgeSpan, 0.0, 1.4);
@@ -216,6 +244,7 @@ void main(){
         }
       }
       acc /= tot;
+      acc += comets(luvG, iTime);
       vec3 glass = acc * uBright;
       glass = mix(glass, uTint, uMilk);
       float hl = clamp(1.0 - length(p - vec2(uHLx, uHLy)) * uHLsize, 0.0, 1.0);
@@ -286,7 +315,6 @@ void main(){
     ['uHLsharp','Reflection sharpness',0.4,5,0.05,0.4],
     ['uRim','Edge glow',0,0.74,0.01,0.08],
     ['uRimStart','Edge glow width',0.5,0.99,0.005,0.565],
-    ['uRadius','Corner radius',0,44,1,19],
     ['uInner','Inner lift',0,0.3,0.005,0.02]
   ];
   var P={}, ULoc={};
