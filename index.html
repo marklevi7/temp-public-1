@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v63</div>
+    <div class="ver">v64</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -196,8 +196,8 @@ vec3 comets(vec2 uv, float t){
   vec2 A = vec2(iRes.x/iRes.y, 1.0);
   vec2 p = uv*A;
   vec3 c = vec3(0.0);
-  c += oneComet(p, A, t, 11.0, 0.0, 0.30, 0.006);
-  c += oneComet(p, A, t, 17.0, 0.37, 0.26, 0.005);
+  // single comet only — never two at once
+  c += oneComet(p, A, t, 10.0, 0.0, 0.30, 0.006);
   return c;
 }
 // value noise + fBm (for the Milky Way nebula band)
@@ -326,7 +326,7 @@ void main(){
     ['uSpeed','Star speed',0,0.04,0.001,0.005],
     ['uParallax','Parallax depth',0,2,0.01,0.68],
     ['uK','Refraction',0,0.25,0.005,0.06],
-    ['uWarpExp','Refraction falloff',1,6,0.1,5.4],
+    ['uWarpExp','Refraction falloff',1,6,0.1,5.5],
     ['uChroma','Chromatic aberration',0,0.25,0.005,0.19],
     ['uBlur','Frost blur',0,5,0.05,0],
     ['uBright','Interior brightness',0.6,1.8,0.01,1.19],
