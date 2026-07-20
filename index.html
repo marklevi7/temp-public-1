@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v68</div>
+    <div class="ver">v69</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -165,10 +165,11 @@ vec3 bg(vec2 u, float drift){
   float pr = uParallax;
   // three depth layers moving at different speeds/scales -> parallax
   vec3 s = vec3(0.0);
+  float ya = iRes.y/iRes.x;   // aspect correction so stars stay circular, not elliptical
   // far: small, slow, dim  ->  near: big, fast, bright
-  s += texture2D(iTex, vec2(u.x*1.4,       fract(u.y*1.4  - drift*0.35))).rgb * 0.38;
-  s += texture2D(iTex, vec2(u.x*1.0+0.37,  fract(u.y*1.0  - drift*(0.8+0.6*pr)))).rgb * 0.72;
-  s += texture2D(iTex, vec2(u.x*0.62+0.13, fract(u.y*0.62 - drift*(1.5+2.4*pr)))).rgb * (0.85+0.55*pr);
+  s += texture2D(iTex, vec2(u.x*1.4,       fract(u.y*1.4*ya  - drift*0.35))).rgb * 0.38;
+  s += texture2D(iTex, vec2(u.x*1.0+0.37,  fract(u.y*1.0*ya  - drift*(0.8+0.6*pr)))).rgb * 0.72;
+  s += texture2D(iTex, vec2(u.x*0.62+0.13, fract(u.y*0.62*ya - drift*(1.5+2.4*pr)))).rgb * (0.85+0.55*pr);
   return g + s;
 }
 float hsh(float n){ return fract(sin(n)*43758.5453123); }
