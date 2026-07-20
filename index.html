@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v64</div>
+    <div class="ver">v65</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -214,15 +214,16 @@ float fbm2(vec2 p){
   return v;
 }
 // domain-warped fBm nebula, concentrated along a diagonal galactic band
-vec3 milkyway(vec2 uv){
+vec3 milkyway(vec2 uv, float drift){
   vec2 A=vec2(iRes.x/iRes.y,1.0);
   vec2 p=uv*A;
   float ca=cos(-0.55), sa=sin(-0.55);
   vec2 q=mat2(ca,-sa,sa,ca)*(p-vec2(0.72,0.52));
   float band=exp(-q.y*q.y*6.5);
-  vec2 w=vec2(fbm2(p*3.0), fbm2(p*3.0+5.2));      // domain warp
-  float n=fbm2(p*3.2 + w*1.6);
-  float dust=fbm2(p*6.5 + w*2.2);
+  vec2 pf=p+vec2(0.0,-drift*0.22);                // slow upward drift with the star field
+  vec2 w=vec2(fbm2(pf*3.0), fbm2(pf*3.0+5.2));    // domain warp
+  float n=fbm2(pf*3.2 + w*1.6);
+  float dust=fbm2(pf*6.5 + w*2.2);
   vec3 col=vec3(0.0);
   col += vec3(0.15,0.12,0.27) * band * smoothstep(0.28,0.9,n) * 0.95;   // purple haze
   col += vec3(0.09,0.15,0.30) * band * smoothstep(0.42,1.0,n) * 0.65;   // blue
@@ -240,7 +241,7 @@ void main(){
   vec2 fc = gl_FragCoord.xy;
   vec2 uv = fc / iRes;
   float drift = iTime * uSpeed;
-  vec3 col = bg(uv, drift) + milkyway(uv) + comets(uv, iTime);
+  vec3 col = bg(uv, drift) + milkyway(uv, drift) + comets(uv, iTime);
   for(int i=0;i<6;i++){
     if(i>=uCount) break;
     vec2 c = uBox[i].xy;
@@ -267,7 +268,7 @@ void main(){
         }
       }
       acc /= tot;
-      acc += milkyway(luvG) + comets(luvG, iTime);
+      acc += milkyway(luvG, drift) + comets(luvG, iTime);
       vec3 glass = acc * uBright;
       glass = mix(glass, uTint, uMilk);
       float hl = clamp(1.0 - length(p - vec2(uHLx, uHLy)) * uHLsize, 0.0, 1.0);
