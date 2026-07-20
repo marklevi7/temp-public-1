@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v71</div>
+    <div class="ver">v72</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -351,23 +351,29 @@ void main(){
   var uTintLoc=gl.getUniformLocation(prog,'uTint');
 
   // ---- device tilt -> reflection X shift ----
-  var tiltX=0, tiltTarget=0;
+  var tiltX=0, tiltTarget=0, tiltOn=false;
   function onTilt(e){
     var g=e.gamma; if(g==null) return;
-    if(g>90)g=90; if(g<-90)g=-90;
-    tiltTarget=(g/90)*0.18; // slight left/right shift
+    if(g>45)g=45; if(g<-45)g=-45;
+    tiltTarget=(g/45)*0.35; // left/right shift
+  }
+  function startTilt(){
+    if(tiltOn) return; tiltOn=true;
+    window.addEventListener('deviceorientation',onTilt);
   }
   function enableTilt(){
     var D=window.DeviceOrientationEvent;
     if(D && typeof D.requestPermission==='function'){
-      D.requestPermission().then(function(s){ if(s==='granted') window.addEventListener('deviceorientation',onTilt); }).catch(function(){});
-    } else if(D){
-      window.addEventListener('deviceorientation',onTilt);
-    }
+      D.requestPermission().then(function(s){ if(s==='granted'){ startTilt(); } else { tiltOn=false; armGesture(); } }).catch(function(){ tiltOn=false; armGesture(); });
+    } else { startTilt(); }
   }
-  enableTilt();
-  window.addEventListener('touchend',enableTilt,{once:true});
-  window.addEventListener('click',enableTilt,{once:true});
+  function armGesture(){
+    window.addEventListener('touchend',enableTilt,{once:true});
+    window.addEventListener('click',enableTilt,{once:true});
+  }
+  // no-permission browsers (Android/desktop) start immediately; iOS waits for a tap
+  if(!(window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission==='function')) startTilt();
+  armGesture();
 
   // ---- accordion controls panel ----
   function hx2rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
