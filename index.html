@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v70</div>
+    <div class="ver">v71</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -350,6 +350,25 @@ void main(){
   var tint=[0.72,0.78,0.92];
   var uTintLoc=gl.getUniformLocation(prog,'uTint');
 
+  // ---- device tilt -> reflection X shift ----
+  var tiltX=0, tiltTarget=0;
+  function onTilt(e){
+    var g=e.gamma; if(g==null) return;
+    if(g>90)g=90; if(g<-90)g=-90;
+    tiltTarget=(g/90)*0.18; // slight left/right shift
+  }
+  function enableTilt(){
+    var D=window.DeviceOrientationEvent;
+    if(D && typeof D.requestPermission==='function'){
+      D.requestPermission().then(function(s){ if(s==='granted') window.addEventListener('deviceorientation',onTilt); }).catch(function(){});
+    } else if(D){
+      window.addEventListener('deviceorientation',onTilt);
+    }
+  }
+  enableTilt();
+  window.addEventListener('touchend',enableTilt,{once:true});
+  window.addEventListener('click',enableTilt,{once:true});
+
   // ---- accordion controls panel ----
   function hx2rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
   function rgb2hx(c){function t(v){return ('0'+Math.round(v*255).toString(16)).slice(-2);}return '#'+t(c[0])+t(c[1])+t(c[2]);}
@@ -412,6 +431,8 @@ void main(){
     gl.uniform1i(U.count,count);
     gl.uniform4fv(U.box,new Float32Array(data));
     for(var k in ULoc){ gl.uniform1f(ULoc[k], P[k]); }
+    tiltX+=(tiltTarget-tiltX)*0.08;
+    gl.uniform1f(ULoc.uHLx, P.uHLx+tiltX);
     gl.uniform3f(uTintLoc, tint[0], tint[1], tint[2]);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,tex); gl.uniform1i(U.tex,0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
