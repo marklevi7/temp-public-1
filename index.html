@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v66</div>
+    <div class="ver">v67</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -220,7 +220,7 @@ vec3 milkyway(vec2 uv, float drift){
   float ca=cos(-0.55), sa=sin(-0.55);
   vec2 q=mat2(ca,-sa,sa,ca)*(p-vec2(0.72,0.52));
   float band=exp(-q.y*q.y*6.5);
-  vec2 pf=p+vec2(0.0,-drift*0.22);                // slow upward drift with the star field
+  vec2 pf=p+vec2(0.0,-iTime*(uSpeed*0.8+0.008));  // visible slow upward drift (baseline + scales with star speed)
   vec2 w=vec2(fbm2(pf*3.0), fbm2(pf*3.0+5.2));    // domain warp
   float n=fbm2(pf*3.2 + w*1.6);
   float dust=fbm2(pf*6.5 + w*2.2);
