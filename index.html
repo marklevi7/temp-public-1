@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v67</div>
+    <div class="ver">v68</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -188,8 +188,9 @@ vec3 oneComet(vec2 p, vec2 A, float t, float per, float seed, float len, float w
   float along=dot(rel,-dir), perp=abs(dot(rel,vec2(-dir.y,dir.x)));
   float tail=clamp(1.0-along/len,0.0,1.0)*step(0.0,along);
   float body=smoothstep(w*(0.25+0.75*(1.0-along/len)),0.0,perp)*tail;
-  float head0=smoothstep(0.02,0.0,length(rel));
-  return (head0*0.65 + body*0.7)*active*vec3(0.86,0.9,1.0);
+  float rr=length(rel);
+  float head0=exp(-(rr*rr)/(0.010*0.010));   // round soft head, ~half size
+  return (head0*0.33 + body*0.7)*active*vec3(0.86,0.9,1.0);
 }
 // comets streak across occasionally, each at a random angle
 vec3 comets(vec2 uv, float t){
