@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v75</div>
+    <div class="ver">v76</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -429,7 +429,7 @@ void main(){
   });
   document.getElementById('hidePhoto').addEventListener('click',function(){
     avatarHidden=!avatarHidden;
-    avatarEl.style.display=avatarHidden?'none':'';
+    avatarEl.style.visibility=avatarHidden?'hidden':'';
     this.textContent=avatarHidden?'Show photo':'Hide photo';
   });
 
@@ -447,7 +447,7 @@ void main(){
       data.push(r.left+r.width/2, H-(r.top+r.height/2), r.width/2, r.height/2);
     }
     var count=n;
-    if(avatar && !avatarHidden && count<6){
+    if(avatar && count<6){
       var ar=avatar.getBoundingClientRect(); var pad=30;
       data.push(ar.left+ar.width/2, H-(ar.top+ar.height/2), ar.width/2+pad, ar.height/2+pad);
       count=n+1;
