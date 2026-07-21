@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v74</div>
+    <div class="ver">v75</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -387,7 +387,11 @@ void main(){
   });
   panel.innerHTML=
     '<div class="hd" id="panelHd" role="button" aria-label="Glass controls"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="9" cy="8" r="2.4" fill="#0c0d10"/><circle cx="15" cy="16" r="2.4" fill="#0c0d10"/></svg></div>'+
-    '<div class="bd"><div class="grid">'+rows+'</div>'+
+    '<div class="bd"><div class="grid">'+rows+
+    '<div class="ctl"><label>Photo size</label><input type="range" id="phSize" min="0" max="220" step="1" value="138"><span class="val" id="phSizeV">138</span></div>'+
+    '<div class="ctl"><label>Photo shadow</label><input type="range" id="phShadow" min="0" max="1" step="0.01" value="0.5"><span class="val" id="phShadowV">0.5</span></div>'+
+    '</div>'+
+    '<div class="row"><button class="act" id="hidePhoto">Hide photo</button></div>'+
     '<div class="row"><button class="act" id="copyBtn">Copy settings</button>'+
     '<button class="act" id="resetBtn">Reset</button></div></div>';
   document.body.appendChild(panel);
@@ -411,6 +415,24 @@ void main(){
     this.textContent='Copied!'; var b=this; setTimeout(function(){b.textContent='Copy settings';},1200);
   });
 
+  // ---- photo (avatar) controls ----
+  var avatarHidden=false;
+  var avatarEl=document.querySelector('.avatar');
+  function applyShadow(v){ avatarEl.style.boxShadow='0 14px 40px rgba(0,0,0,'+v+')'; }
+  document.getElementById('phSize').addEventListener('input',function(){
+    var v=parseInt(this.value,10); avatarEl.style.width=v+'px'; avatarEl.style.height=v+'px';
+    document.getElementById('phSizeV').textContent=v;
+  });
+  document.getElementById('phShadow').addEventListener('input',function(){
+    var v=parseFloat(this.value); applyShadow(v);
+    document.getElementById('phShadowV').textContent=v;
+  });
+  document.getElementById('hidePhoto').addEventListener('click',function(){
+    avatarHidden=!avatarHidden;
+    avatarEl.style.display=avatarHidden?'none':'';
+    this.textContent=avatarHidden?'Show photo':'Hide photo';
+  });
+
   var W,H;
   function resize(){ W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; }
   resize();
@@ -425,7 +447,7 @@ void main(){
       data.push(r.left+r.width/2, H-(r.top+r.height/2), r.width/2, r.height/2);
     }
     var count=n;
-    if(avatar && count<6){
+    if(avatar && !avatarHidden && count<6){
       var ar=avatar.getBoundingClientRect(); var pad=30;
       data.push(ar.left+ar.width/2, H-(ar.top+ar.height/2), ar.width/2+pad, ar.height/2+pad);
       count=n+1;
