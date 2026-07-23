@@ -146,7 +146,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v76</div>
+    <div class="ver">v77</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -326,22 +326,22 @@ void main(){
 
   // ---- adjustable parameters (uniform, label, min, max, step, default) ----
   var CFG=[
-    ['uSpeed','Star speed',0,0.04,0.001,0.005],
-    ['uParallax','Parallax depth',0,2,0.01,1.82],
-    ['uK','Refraction',0,0.25,0.005,0.225],
-    ['uWarpExp','Refraction falloff',1,6,0.1,6],
+    ['uSpeed','Star speed',0,0.04,0.001,0.004],
+    ['uParallax','Parallax depth',0,2,0.01,1.27],
+    ['uK','Refraction',0,0.25,0.005,0.095],
+    ['uWarpExp','Refraction falloff',1,6,0.1,5],
     ['uChroma','Chromatic aberration',0,0.25,0.005,0.25],
     ['uBlur','Frost blur',0,5,0.05,0],
     ['uBright','Interior brightness',0.6,1.8,0.01,1.8],
-    ['uMilk','Frostiness (milk)',0,1,0.01,0.11],
-    ['uHL','Reflection strength',0,2,0.01,0.49],
+    ['uMilk','Frostiness (milk)',0,1,0.01,0.13],
+    ['uHL','Reflection strength',0,2,0.01,0.37],
     ['uHLx','Reflection X',-1.2,1.2,0.01,-0.02],
-    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.89],
+    ['uHLy','Reflection Y',-1.2,1.2,0.01,0.96],
     ['uHLsize','Reflection size',0.4,3,0.01,1.88],
-    ['uHLsharp','Reflection sharpness',0.4,5,0.05,2.35],
-    ['uRim','Edge glow',0,0.74,0.01,0.3],
-    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.64],
-    ['uInner','Inner lift',0,0.3,0.005,0.02]
+    ['uHLsharp','Reflection sharpness',0.4,5,0.05,1.55],
+    ['uRim','Edge glow',0,0.74,0.01,0.19],
+    ['uRimStart','Edge glow width',0.5,0.99,0.005,0.54],
+    ['uInner','Inner lift',0,0.3,0.005,0]
   ];
   var P={}, ULoc={};
   CFG.forEach(function(c){ P[c[0]]=c[5]; ULoc[c[0]]=gl.getUniformLocation(prog,c[0]); });
