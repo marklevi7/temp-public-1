@@ -153,7 +153,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v78</div>
+    <div class="ver">v79</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -357,30 +357,15 @@ void main(){
   var tint=[0.72,0.78,0.92];
   var uTintLoc=gl.getUniformLocation(prog,'uTint');
 
-  // ---- device tilt -> reflection X shift ----
-  var tiltX=0, tiltTarget=0, tiltOn=false;
-  function onTilt(e){
-    var g=e.gamma; if(g==null) return;
-    if(g>45)g=45; if(g<-45)g=-45;
-    tiltTarget=(g/45)*-1.0; // fixed light source: tilt right -> light left
+  // ---- automatic light sweep (left <-> right, 12s cycle, ~3s per phase) ----
+  // no device sensors, no permission popups
+  function autoLight(t){
+    var p=t%12;                 // 0..12s
+    if(p<3){ var s=p/3; return -1+2*(s*s*(3-2*s)); }   // left -> right (eased)
+    if(p<6){ return 1; }                                // pause right
+    if(p<9){ var s=(p-6)/3; return 1-2*(s*s*(3-2*s)); } // right -> left (eased)
+    return -1;                                          // pause left
   }
-  function startTilt(){
-    if(tiltOn) return; tiltOn=true;
-    window.addEventListener('deviceorientation',onTilt);
-  }
-  function enableTilt(){
-    var D=window.DeviceOrientationEvent;
-    if(D && typeof D.requestPermission==='function'){
-      D.requestPermission().then(function(s){ if(s==='granted'){ startTilt(); } else { tiltOn=false; armGesture(); } }).catch(function(){ tiltOn=false; armGesture(); });
-    } else { startTilt(); }
-  }
-  function armGesture(){
-    window.addEventListener('touchend',enableTilt,{once:true});
-    window.addEventListener('click',enableTilt,{once:true});
-  }
-  // no-permission browsers (Android/desktop) start immediately; iOS waits for a tap
-  if(!(window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission==='function')) startTilt();
-  armGesture();
 
   // ---- accordion controls panel ----
   function hx2rgb(h){var n=parseInt(h.slice(1),16);return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
@@ -466,8 +451,7 @@ void main(){
     gl.uniform1i(U.count,count);
     gl.uniform4fv(U.box,new Float32Array(data));
     for(var k in ULoc){ gl.uniform1f(ULoc[k], P[k]); }
-    tiltX+=(tiltTarget-tiltX)*0.08;
-    gl.uniform1f(ULoc.uHLx, P.uHLx+tiltX);
+    gl.uniform1f(ULoc.uHLx, P.uHLx+autoLight((performance.now()-start)/1000));
     gl.uniform3f(uTintLoc, tint[0], tint[1], tint[2]);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,tex); gl.uniform1i(U.tex,0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
