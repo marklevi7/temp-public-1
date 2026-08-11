@@ -153,7 +153,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v79</div>
+    <div class="ver">v80</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
@@ -205,8 +205,8 @@ vec3 comets(vec2 uv, float t){
   vec2 A = vec2(iRes.x/iRes.y, 1.0);
   vec2 p = uv*A;
   vec3 c = vec3(0.0);
-  // single comet only — never two at once
-  c += oneComet(p, A, t, 10.0, 0.0, 0.30, 0.006);
+  // single comet only — never two at once; first appears 3s after load
+  c += oneComet(p, A, t-3.0, 10.0, 0.0, 0.30, 0.006);
   return c;
 }
 // value noise + fBm (for the Milky Way nebula band)
