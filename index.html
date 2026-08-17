@@ -62,13 +62,18 @@ h1{font-size:30px;font-weight:800;margin-top:40px;text-align:center;letter-spaci
   overflow:hidden;
 }
 .links a:active{transform:scale(.99)}
-/* "In and Out" shimmer: a light band sweeps across, then pauses 3x the sweep */
-.links a .shine{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:2}
+/* "In and Out" shimmer: a light band rides the button outline, then pauses 3x the sweep */
+.links a .shine{
+  position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+  padding:1.6px;overflow:hidden;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
 .links a .shine::before{
   content:"";position:absolute;top:-60%;left:-25%;width:20%;height:220%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.62),transparent);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);
   transform:skewX(-18deg);
-  animation:shineInOut 8s linear infinite;
+  animation:shineInOut 4s linear infinite;
 }
 @keyframes shineInOut{
   0%{left:-25%}
@@ -169,7 +174,7 @@ footer{margin-top:40px;color:var(--muted);font-size:12px;text-align:center}
 
   <footer>
     © Mark Levi
-    <div class="ver">v82</div>
+    <div class="ver">v83</div>
   </footer>
 </main>
 <script id="glassFrag" type="x-shader/x-fragment">
